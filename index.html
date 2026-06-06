@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>打开韭研公社文章</title>
+    <style>
+        * {margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system}
+        body{background:#f6f7f9;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+        .wrap{max-width:375px;width:100%;text-align:center}
+        .tit{font-size:22px;color:#222;margin-bottom:12px}
+        .desc{color:#666;font-size:14px;margin-bottom:40px;line-height:1.7}
+        .open-btn{width:230px;height:52px;background:#1976d2;color:#fff;border:none;border-radius:99px;font-size:16px;cursor:pointer;box-shadow:0 3px 12px #1976d233}
+        .open-btn:active{transform:scale(0.97)}
+        .tip{margin-top:30px;font-size:12px;color:#999}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h2 class="tit">在韭研公社App打开文章</h2>
+    <p class="desc">点击按钮自动跳转App阅读原文，未安装跳转官网</p>
+    <button class="open-btn" id="btn">立即打开App</button>
+    <p class="tip">IOS依靠Universal Link唤起，安卓优先应用协议</p>
+</div>
+
+<script>
+const config = {
+    ulink:"https://ai.jiuyangongshe.com/share/article/5b20d42d2ae41cef6e823877463bd8a3fa6d609f0bda9d4c35315957363a9321",
+    schema:"jiuyangongshe://",
+    downUrl:"https://ai.jiuyangongshe.com"
+}
+let timer=null;
+document.getElementById('btn').onclick=()=>{
+    // 优先Universal Link（IOS官方通用跳转）
+    location.href=config.ulink;
+    let hasOpen=false;
+    const start=Date.now();
+    // 超时未唤起则切Schema，再失败跳转落地页
+    timer=setTimeout(()=>{
+        if(Date.now()-start>2200){
+            location.href=config.schema;
+            setTimeout(()=>{location.href=config.downUrl},2000)
+        }
+    },2300)
+}
+// 切后台清除定时器
+document.addEventListener('visibilitychange',()=>{
+    if(document.hidden&&timer) clearTimeout(timer)
+})
+</script>
+</body>
+</html>
