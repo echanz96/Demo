@@ -26,7 +26,7 @@
 <script>
 const config = {
     ulink:"https://ai.jiuyangongshe.com/share/article/5b20d42d2ae41cef6e823877463bd8a3fa6d609f0bda9d4c35315957363a9321",
-    schema:"jiuyangongshe://",
+    androidDeeplink:"jcgs://main?articleId=5b20d42d2ae41cef6e823877463bd8a3fa6d609f0bda9d4c35315957363a9321",
     androidMarket:"market://details?id=com.jiucaigongshe",
     androidMarketWeb:"https://a.app.qq.com/o/simple.jsp?pkgname=com.jiucaigongshe",
     iosStore:"itms-apps://itunes.apple.com/cn/app/id1514578934?mt=8",
@@ -38,6 +38,7 @@ let marketTimer=null;
 const ua=navigator.userAgent||"";
 const isAndroid=/Android/i.test(ua);
 const isIOS=/iPhone|iPad|iPod/i.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const isMobile=isAndroid||isIOS;
 
 function clearTimers(){
     if(timer){
@@ -50,8 +51,20 @@ function clearTimers(){
     }
 }
 
+function normalizeTargetUrl(url){
+    if(!isMobile) return url;
+    try{
+        const target=new URL(url);
+        if(target.hostname==="ai.jiuyangongshe.com"){
+            target.hostname="m-ai.jiuyangongshe.com";
+            return target.href;
+        }
+    }catch(e){}
+    return url;
+}
+
 function go(url){
-    location.href=url;
+    location.href=normalizeTargetUrl(url);
 }
 
 function fallbackToStore(){
@@ -78,7 +91,7 @@ document.getElementById('btn').onclick=()=>{
     if(isIOS){
         go(config.ulink);
     }else if(isAndroid){
-        go(config.schema);
+        go(config.androidDeeplink);
     }else{
         go(config.ulink);
     }
