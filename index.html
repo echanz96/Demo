@@ -13,6 +13,8 @@
         .open-btn{width:230px;height:52px;background:#1976d2;color:#fff;border:none;border-radius:99px;font-size:16px;cursor:pointer;box-shadow:0 3px 12px #1976d233}
         .open-btn:active{transform:scale(0.97)}
         .tip{margin-top:30px;font-size:12px;color:#999}
+        .wechat-guide{display:none;margin-top:18px;padding:12px 14px;border-radius:12px;background:#fff7e6;color:#8a5a00;font-size:13px;line-height:1.6;text-align:left}
+        .wechat-guide.show{display:block}
     </style>
 </head>
 <body>
@@ -20,6 +22,7 @@
     <h2 class="tit">在韭研公社App打开文章</h2>
     <p class="desc">点击按钮自动跳转App阅读原文，未安装跳转应用商店</p>
     <button class="open-btn" id="btn">立即打开App</button>
+    <p class="wechat-guide" id="wechatGuide">安卓微信内可能会拦截 App 协议，导致无法直接打开。请点击右上角“...”选择“在浏览器打开”，再点击按钮唤起 App。</p>
     <p class="tip">iOS依靠Universal Link唤起，安卓优先应用协议</p>
 </div>
 
@@ -38,6 +41,7 @@ let marketTimer=null;
 const ua=navigator.userAgent||"";
 const isAndroid=/Android/i.test(ua);
 const isIOS=/iPhone|iPad|iPod/i.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const isWechat=/MicroMessenger/i.test(ua);
 const isMobile=isAndroid||isIOS;
 
 function clearTimers(){
@@ -67,8 +71,17 @@ function go(url){
     location.href=normalizeTargetUrl(url);
 }
 
+function showWechatGuide(){
+    const guide=document.getElementById('wechatGuide');
+    if(guide) guide.classList.add('show');
+}
+
 function fallbackToStore(){
     if(document.hidden) return;
+    if(isAndroid&&isWechat){
+        showWechatGuide();
+        return;
+    }
     if(isIOS){
         go(config.iosStore);
         return;
